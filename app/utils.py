@@ -24,7 +24,7 @@ def verify_signature(request, timestamp, signature):
     if hasattr(hmac, "compare_digest"):
         req = str.encode('v0:' + str(timestamp) + ':') + request.get_data()
         request_hash = 'v0=' + hmac.new(
-            str.encode(self.signing_secret),
+            str.encode(signature),
             req, hashlib.sha256
         ).hexdigest()
         # Compare byte strings for Python 2
@@ -36,7 +36,7 @@ def verify_signature(request, timestamp, signature):
         # So, we'll compare the signatures explicitly
         req = str.encode('v0:' + str(timestamp) + ':') + request.get_data()
         request_hash = 'v0=' + hmac.new(
-            str.encode(self.signing_secret),
+            str.encode(signature),
             req, hashlib.sha256
         ).hexdigest()
 
