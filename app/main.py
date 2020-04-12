@@ -7,7 +7,7 @@ import sqreen
 
 from flask import Flask
 from flask import abort, jsonify
-from flask import request
+from flask import request, make_response
 
 from flask_sqlalchemy import SQLAlchemy
 from flask_heroku import Heroku
@@ -18,6 +18,9 @@ from sqlalchemy import column, exists, func
 from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.ext.mutable import MutableDict
 from sqlalchemy.orm.attributes import flag_modified
+
+from app.utils import get_slack_profile, build_response, verify_signature
+from app.exceptions import OrgLookupException
 
 app = Flask(__name__)
 #app.config.from_object(os.environ['APP_SETTINGS'])
@@ -31,40 +34,6 @@ slack_events_adapter = SlackEventAdapter(slack_signing_secret, "/slack/events", 
 slack = slack.WebClient(token=os.environ['SLACK_API_TOKEN'])
 
 sqreen.start()
-
-## helper functions
-def validate_slack_secret(request_body, timestamp, slack_signature):
-    sig_basestring = 'v0:' + timestamp + ':' + request_body
-    my_signature = 'v0=' + hmac.compute_hash_sha256(
-        slack_signing_secret,
-        sig_basestring
-    ).hexdigest()
-
-    return my_signature == slack_signature
-
-
-def build_response(message):
-    resp = { "response_type" : "ephemeral",
-            "text" : message,
-            "type" : "mrkdwn"
-            }
-    return resp
-
-def get_slack_profile(user_id):
-    contact_info = {}
-    try:
-        resp=slack.users_profile_get(user=user_id)
-        if resp['ok']:
-            contact_info= {
-                'full_name' :   resp['profile']['real_name'],
-                'display_name' :  resp['profile']['display_name'],
-                'title' :  resp['profile']['title']
-                }
-        return contact_info
-    except:
-        pass
-    return None
-
 ##ORM
 class CTIContact(db.Model):
     __tablename__ = 'cti_contacts'
@@ -99,6 +68,12 @@ def not_authorized(e):
 
 @app.route('/listorgs', methods=['POST'])
 def listorgs():
+    req_timestamp = request.headers.get('X-Slack-Request-Timestamp')
+    req_signature = request.headers.get('X-Slack-Signature')
+
+    if not verify_signature(request, req_timestamp, req_signature):
+        return make_response("", 403)
+
     text=request.form['text']
     user_name=request.form['user_name']
 
@@ -120,6 +95,12 @@ def listorgs():
 
 @app.route('/leaveorg', methods=['POST'])
 def leaveorg():
+    req_timestamp = request.headers.get('X-Slack-Request-Timestamp')
+    req_signature = request.headers.get('X-Slack-Signature')
+
+    if not verify_signature(request, req_timestamp, req_signature):
+        return make_response("", 403)
+
     text=request.form['text']
     user_id=request.form['user_id']
 
@@ -153,6 +134,12 @@ def leaveorg():
 
 @app.route('/delorg', methods=['POST'])
 def deleteorg():
+    req_timestamp = request.headers.get('X-Slack-Request-Timestamp')
+    req_signature = request.headers.get('X-Slack-Signature')
+
+    if not verify_signature(request, req_timestamp, req_signature):
+        return make_response("", 403)
+
     text=request.form['text']
     user_id=request.form['user_id']
 
@@ -179,6 +166,12 @@ def deleteorg():
 
 @app.route('/listmyorgs', methods=['POST'])
 def listmyorgs():
+    req_timestamp = request.headers.get('X-Slack-Request-Timestamp')
+    req_signature = request.headers.get('X-Slack-Signature')
+
+    if not verify_signature(request, req_timestamp, req_signature):
+        return make_response("", 403)
+
     text=request.form['text']
     user_id=request.form['user_id']
 
@@ -195,6 +188,12 @@ def listmyorgs():
 
 @app.route('/modorg', methods=['POST'])
 def modorg():
+    req_timestamp = request.headers.get('X-Slack-Request-Timestamp')
+    req_signature = request.headers.get('X-Slack-Signature')
+
+    if not verify_signature(request, req_timestamp, req_signature):
+        return make_response("", 403)
+
     text=request.form['text']
     user_id=request.form['user_id']
 
@@ -231,6 +230,12 @@ def modorg():
 
 @app.route('/listmembers', methods=['POST'])
 def listmembers():
+    req_timestamp = request.headers.get('X-Slack-Request-Timestamp')
+    req_signature = request.headers.get('X-Slack-Signature')
+
+    if not verify_signature(request, req_timestamp, req_signature):
+        return make_response("", 403)
+
     text=request.form['text']
     user_name=request.form['user_name']
 
@@ -262,6 +267,12 @@ def listmembers():
 
 @app.route('/addcontact', methods=['POST'])
 def addcontact():
+    req_timestamp = request.headers.get('X-Slack-Request-Timestamp')
+    req_signature = request.headers.get('X-Slack-Signature')
+
+    if not verify_signature(request, req_timestamp, req_signature):
+        return make_response("", 403)
+    
     text=request.form['text']
     user_name=request.form['user_name']
     user_id=request.form['user_id']
