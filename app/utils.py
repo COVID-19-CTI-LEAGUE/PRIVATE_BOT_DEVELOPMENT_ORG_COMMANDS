@@ -1,4 +1,4 @@
-import time
+from time import time
 
 def verify_signature(request, timestamp, signature):
     # Verify the request signature of the request sent from Slack
