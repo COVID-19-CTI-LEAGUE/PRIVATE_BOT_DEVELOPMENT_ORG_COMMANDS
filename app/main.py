@@ -71,7 +71,7 @@ def listorgs():
     req_timestamp = request.headers.get('X-Slack-Request-Timestamp')
     req_signature = request.headers.get('X-Slack-Signature')
 
-    if not verify_signature(request, req_timestamp, req_signature):
+    if not verify_signature(request, req_timestamp, req_signature, slack_signing_secret):
         return make_response("", 403)
 
     text=request.form['text']
@@ -98,7 +98,7 @@ def leaveorg():
     req_timestamp = request.headers.get('X-Slack-Request-Timestamp')
     req_signature = request.headers.get('X-Slack-Signature')
 
-    if not verify_signature(request, req_timestamp, req_signature):
+    if not verify_signature(request, req_timestamp, req_signature, slack_signing_secret):
         return make_response("", 403)
 
     text=request.form['text']
@@ -137,7 +137,7 @@ def deleteorg():
     req_timestamp = request.headers.get('X-Slack-Request-Timestamp')
     req_signature = request.headers.get('X-Slack-Signature')
 
-    if not verify_signature(request, req_timestamp, req_signature):
+    if not verify_signature(request, req_timestamp, req_signature, slack_signing_secret):
         return make_response("", 403)
 
     text=request.form['text']
@@ -169,7 +169,7 @@ def listmyorgs():
     req_timestamp = request.headers.get('X-Slack-Request-Timestamp')
     req_signature = request.headers.get('X-Slack-Signature')
 
-    if not verify_signature(request, req_timestamp, req_signature):
+    if not verify_signature(request, req_timestamp, req_signature, slack_signing_secret):
         return make_response("", 403)
 
     text=request.form['text']
@@ -191,7 +191,7 @@ def modorg():
     req_timestamp = request.headers.get('X-Slack-Request-Timestamp')
     req_signature = request.headers.get('X-Slack-Signature')
 
-    if not verify_signature(request, req_timestamp, req_signature):
+    if not verify_signature(request, req_timestamp, req_signature, slack_signing_secret):
         return make_response("", 403)
 
     text=request.form['text']
@@ -233,7 +233,7 @@ def listmembers():
     req_timestamp = request.headers.get('X-Slack-Request-Timestamp')
     req_signature = request.headers.get('X-Slack-Signature')
 
-    if not verify_signature(request, req_timestamp, req_signature):
+    if not verify_signature(request, req_timestamp, req_signature, slack_signing_secret):
         return make_response("", 403)
 
     text=request.form['text']
@@ -270,9 +270,9 @@ def addcontact():
     req_timestamp = request.headers.get('X-Slack-Request-Timestamp')
     req_signature = request.headers.get('X-Slack-Signature')
 
-    if not verify_signature(request, req_timestamp, req_signature):
+    if not verify_signature(request, req_timestamp, req_signature, slack_signing_secret):
         return make_response("", 403)
-    
+
     text=request.form['text']
     user_name=request.form['user_name']
     user_id=request.form['user_id']

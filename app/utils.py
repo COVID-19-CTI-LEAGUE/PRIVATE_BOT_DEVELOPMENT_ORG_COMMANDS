@@ -7,7 +7,7 @@ import sys
 
 from time import time
 
-def verify_signature(request, timestamp, signature):
+def verify_signature(request, timestamp, signature, signing_secret):
     # Verify the request signature of the request sent from Slack
     # Generate a new hash using the app's signing secret and request data
 
@@ -25,7 +25,7 @@ def verify_signature(request, timestamp, signature):
     if hasattr(hmac, "compare_digest"):
         req = str.encode('v0:' + str(timestamp) + ':') + request.get_data()
         request_hash = 'v0=' + hmac.new(
-            str.encode(signature),
+            str.encode(signing_secret),
             req, hashlib.sha256
         ).hexdigest()
         # Compare byte strings for Python 2
@@ -37,7 +37,7 @@ def verify_signature(request, timestamp, signature):
         # So, we'll compare the signatures explicitly
         req = str.encode('v0:' + str(timestamp) + ':') + request.get_data()
         request_hash = 'v0=' + hmac.new(
-            str.encode(signature),
+            str.encode(signing_secret),
             req, hashlib.sha256
         ).hexdigest()
 
