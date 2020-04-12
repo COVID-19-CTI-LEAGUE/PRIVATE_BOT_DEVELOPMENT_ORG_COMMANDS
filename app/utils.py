@@ -9,6 +9,9 @@ def verify_signature(request, timestamp, signature):
     # It's recommended to use Python 2.7.7+
     # noqa See https://docs.python.org/2/whatsnew/2.7.html#pep-466-network-security-enhancements-for-python-2-7
 
+    if timestamp is None or signature is None:
+        return False
+    
     if abs(time() - int(timestamp)) > 60 * 5:
         return False
 
