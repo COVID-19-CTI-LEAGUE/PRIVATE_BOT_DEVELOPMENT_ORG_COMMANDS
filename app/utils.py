@@ -1,3 +1,9 @@
+import hmac
+import json
+import os
+import platform
+import sys
+
 from time import time
 
 def verify_signature(request, timestamp, signature):
@@ -11,7 +17,7 @@ def verify_signature(request, timestamp, signature):
 
     if timestamp is None or signature is None:
         return False
-    
+
     if abs(time() - int(timestamp)) > 60 * 5:
         return False
 
