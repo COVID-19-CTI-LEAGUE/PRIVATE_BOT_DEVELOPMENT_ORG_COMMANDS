@@ -72,7 +72,7 @@ def listorgs():
     resp = {}
     resp['blocks'] = []
     orgs = []
-
+    message = ""
     if len(text) == 0:
         message = "Current registered organizations:"
         for cc in all_ccs:
