@@ -8,6 +8,7 @@ class Config(object):
     TESTING = False
     CSRF_ENABLED = True
     SQLALCHEMY_DATABASE_URI = os.environ['DATABASE_URL']
+    SLACK_SIGNING_SECRET = os.environ['SLACK_SIGNING_SECRET']
     SQLALCHEMY_ENGINE_OPTIONS = {
         'pool_size' : 10,
         'pool_recycle' : 90,

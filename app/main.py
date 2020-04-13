@@ -70,8 +70,8 @@ def not_authorized(e):
 @app.route('/listorgs', methods=['POST'])
 @slack_sig_auth
 def listorgs():
-    req_timestamp = request.headers.get('X-Slack-Request-Timestamp')
-    req_signature = request.headers.get('X-Slack-Signature')
+#    req_timestamp = request.headers.get('X-Slack-Request-Timestamp')
+#    req_signature = request.headers.get('X-Slack-Signature')
 
 #    if not verify_signature(request, req_timestamp, req_signature, slack_signing_secret):
 #        return make_response("", 403)
