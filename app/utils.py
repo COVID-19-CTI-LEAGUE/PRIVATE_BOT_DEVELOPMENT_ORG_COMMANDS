@@ -96,14 +96,14 @@ def add_fields_section(fields, plain_text=True):
                 'type' : 'section',
                 'fields' : []
             }
-            
+
         section['fields'].append({
             'type' : type,
             'text' : field
         })
 
         index += 1
-    return section
+    return sections
 
 def get_slack_profile(user_id):
     contact_info = {}
