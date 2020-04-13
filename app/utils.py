@@ -92,6 +92,23 @@ def add_button_section(button_text, value):
 
     return section
 
+
+def add_noaction_modal_section(title):
+    resp = {
+        'type': 'modal',
+        'title':{
+            'type': 'plain_text',
+            'text': title
+        },
+        'close': {
+            'type': 'plain_text',
+            'text': 'Ok'
+        }
+    }
+
+    return resp
+
+
 def add_fields_section(fields, plain_text=True):
     sections = []
     section = {
