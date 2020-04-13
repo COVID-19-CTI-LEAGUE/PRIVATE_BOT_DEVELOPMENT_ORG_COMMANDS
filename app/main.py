@@ -68,11 +68,12 @@ def listorgs():
     text=request.form['text']
     user_name=request.form['user_name']
 
-    all_ccs = db.session.query(CTIContact).all()
+    all_ccs = db.session.query(CTIContact).order_by(CTIContact.id).all()
     resp = {}
     resp['blocks'] = []
     orgs = []
     message = ""
+    last_id=0
     if len(text) == 0:
         message = "Current registered organizations:"
         for cc in all_ccs:
@@ -82,12 +83,15 @@ def listorgs():
         for cc in all_ccs:
             if text.lower() in cc.data['organization'].lower():
                 orgs.append(cc.data['organization'])
+            last_id=cc.id
 
     resp['blocks'].append(add_mrkdwn_section(message))
-    fields = add_fields_section(orgs)
 
-    for field in fields:
-        resp['blocks'].append(field)
+    message = ""
+    for org in orgs:
+        message += "- {}\n".format(org)
+
+    resp['blocks'].append(add_mrkdwn_section(message))
     print(resp)
     return jsonify(resp)
 

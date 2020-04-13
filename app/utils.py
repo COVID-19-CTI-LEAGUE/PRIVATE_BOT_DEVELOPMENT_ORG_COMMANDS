@@ -75,6 +75,23 @@ def add_mrkdwn_section(text):
 
     return section
 
+def add_button_section(button_text, value):
+    section = {
+        'type': 'actions',
+        'elements': []
+    }
+
+    section['elements'].append({
+        'type': 'button',
+        'text': {
+            'type': 'plain_text',
+            'text': button_text
+        },
+        'value': value
+    })
+
+    return section
+
 def add_fields_section(fields, plain_text=True):
     sections = []
     section = {
