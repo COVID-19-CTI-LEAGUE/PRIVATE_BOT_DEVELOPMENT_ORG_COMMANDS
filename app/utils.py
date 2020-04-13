@@ -103,6 +103,7 @@ def add_fields_section(fields, plain_text=True):
         })
 
         index += 1
+    sections.append(section)
     return sections
 
 def get_slack_profile(user_id):

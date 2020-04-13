@@ -85,7 +85,9 @@ def listorgs():
 
     resp['blocks'].append(add_mrkdwn_section(message))
     fields = add_fields_section(orgs)
-    resp['blocks'].append(fields)
+
+    for field in fields:
+        resp['blocks'].append(field)
     print(resp)
     return jsonify(resp)
 
@@ -169,9 +171,10 @@ def listmyorgs():
             orgs.append(cc.data['organization'])
 
     fields = add_fields_section(orgs)
-    resp['blocks'].append(fields)
 
-    print(resp)
+    for field in fields:
+        resp['blocks'].append(field)
+
     return jsonify(resp)
 
 @app.route('/modorg', methods=['POST'])
@@ -244,9 +247,9 @@ def listmembers():
         resp['blocks'].append(add_mrkdwn_section('Contacts for {}'.format(text)))
 
         fields = add_fields_section(contacts, False)
-        resp['blocks'].append(fields)
-        print(resp)
 
+        for field in fields:
+            resp['blocks'].append(field)
         return jsonify(resp)
 
 @app.route('/addcontact', methods=['POST'])
