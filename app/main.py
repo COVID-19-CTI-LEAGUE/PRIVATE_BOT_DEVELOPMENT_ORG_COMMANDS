@@ -17,7 +17,7 @@ from sqlalchemy.dialects.postgresql import JSONB
 from sqlalchemy.ext.mutable import MutableDict
 from sqlalchemy.orm.attributes import flag_modified
 
-from app.utils import get_slack_profile, build_response, verify_signature
+from app.utils import *
 from app.exceptions import OrgLookupException
 
 from config import ProductionConfig
@@ -70,18 +70,23 @@ def listorgs():
 
     all_ccs = db.session.query(CTIContact).all()
     resp = {}
-    if len(text) == 0:
-        message = "Current registered organizations:\n"
-        for cc in all_ccs:
-            message += '- ' + cc.data['organization'] + '\n'
+    resp['blocks'] = []
+    orgs = []
 
-        resp = build_response(message)
+    if len(text) == 0:
+        message = "Current registered organizations:"
+        for cc in all_ccs:
+            orgs.append(cc.data['organization'])
     else:
         message = "Organizations matching your search:\n"
         for cc in all_ccs:
             if text.lower() in cc.data['organization'].lower():
-                message += '- ' + cc.data['organization'] + '\n'
-        resp = build_response(message)
+                orgs.append(cc.data['organization'])
+
+    resp['blocks'].append(add_mrkdwn_section(message))
+    fields = add_fields_section(orgs)
+    resp['blocks'].append(fields)
+
     return jsonify(resp)
 
 @app.route('/leaveorg', methods=['POST'])
@@ -154,12 +159,18 @@ def listmyorgs():
     all_ccs = db.session.query(CTIContact).all()
 
     message = "You are a contact for the following organizations:\n"
+    resp = {}
+    resp['blocks'] = []
+    resp['blocks'].append(add_mrkdwn_section(message))
+    orgs = []
 
     for cc in all_ccs:
         if user_id in cc.data['contacts']:
-            message += '- ' + cc.data['organization'] + '\n'
+            orgs.append(cc.data['organization'])
 
-    resp = build_response(message)
+    fields = add_fields_section(orgs)
+    resp['blocks'].append(fields)
+
     return jsonify(resp)
 
 @app.route('/modorg', methods=['POST'])
@@ -218,17 +229,22 @@ def listmembers():
             resp = build_response('Organization {} not found'.format(text))
             return jsonify(resp)
 
-        contacts = ""
+        contacts = []
         for contact in cc.data['contacts']:
             contact_info = get_slack_profile(contact)
             if contact_info is not None:
-                contact_str = "-  {} (<@{}>)".format(contact_info['full_name'], contact)
+                contact_str = "{} (<@{}>)".format(contact_info['full_name'], contact)
             else:
-                contact_str = "- {}".format(contact);
-            contacts += contact_str + '\n'
-        contacts=contacts.rstrip('\n')
-        message = "Contacts for {}:\n {}".format(text, contacts)
-        resp = build_response(message)
+                contact_str = "{}".format(contact);
+            contacts.append(contact_str)
+
+        resp = {}
+        resp['blocks'] = []
+        resp['blcoks'].append(add_mrkdwn_section('Contacts for {}'.format(text)))
+
+        fields = add_fields_section(contacts)
+        resp['blocks'].append(fields)
+
         return jsonify(resp)
 
 @app.route('/addcontact', methods=['POST'])

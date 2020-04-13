@@ -63,6 +63,32 @@ def build_response(message):
             }
     return resp
 
+
+def add_mrkdwn_section(text):
+    section = {
+        'type' : 'section',
+        'text' : {
+            'type' : 'mrkdwn',
+            'text' : text
+        }
+    }
+
+    return section
+
+def add_fields_section(fields):
+    section = {
+        'type' : 'section',
+        'fields' : []
+    }
+
+    for field in fields:
+        section['fields'].append({
+            'type' : 'plain_text',
+            'text' : field,
+            'emoji' : False
+        })
+    return section
+
 def get_slack_profile(user_id):
     contact_info = {}
     try:
