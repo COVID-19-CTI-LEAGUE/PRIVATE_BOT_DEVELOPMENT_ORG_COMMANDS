@@ -11,6 +11,7 @@ from flask import request, make_response
 
 from flask_sqlalchemy import SQLAlchemy
 from flask_heroku import Heroku
+from flask_slacksigauth import slack_sig_auth
 
 from slackeventsapi import SlackEventAdapter
 
@@ -67,12 +68,13 @@ def not_authorized(e):
     return jsonify(error=str(e)), 403
 
 @app.route('/listorgs', methods=['POST'])
+@slack_sig_auth
 def listorgs():
     req_timestamp = request.headers.get('X-Slack-Request-Timestamp')
     req_signature = request.headers.get('X-Slack-Signature')
 
-    if not verify_signature(request, req_timestamp, req_signature, slack_signing_secret):
-        return make_response("", 403)
+#    if not verify_signature(request, req_timestamp, req_signature, slack_signing_secret):
+#        return make_response("", 403)
 
     text=request.form['text']
     user_name=request.form['user_name']
