@@ -76,6 +76,7 @@ def add_mrkdwn_section(text):
     return section
 
 def add_fields_section(fields, plain_text=True):
+    sections = []
     section = {
         'type' : 'section',
         'fields' : []
@@ -86,11 +87,22 @@ def add_fields_section(fields, plain_text=True):
     if not plain_text:
         type = 'mrkdwn'
 
+    index = 0
     for field in fields:
+        if index > 0 and index % 10 == 0:
+            sections.append(section)
+            sections.append({'type' : 'divider'})
+            section = {
+                'type' : 'section',
+                'fields' : []
+            }
+            
         section['fields'].append({
             'type' : type,
             'text' : field
         })
+
+        index += 1
     return section
 
 def get_slack_profile(user_id):
