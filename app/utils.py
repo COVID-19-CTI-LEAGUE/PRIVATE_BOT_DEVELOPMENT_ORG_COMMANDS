@@ -75,15 +75,20 @@ def add_mrkdwn_section(text):
 
     return section
 
-def add_fields_section(fields):
+def add_fields_section(fields, plain_text=True):
     section = {
         'type' : 'section',
         'fields' : []
     }
 
+    type = 'plain_text'
+
+    if not plain_text:
+        type = 'mrkdwn'
+
     for field in fields:
         section['fields'].append({
-            'type' : 'mrkdwn',
+            'type' : type,
             'text' : field,
             'emoji' : False
         })

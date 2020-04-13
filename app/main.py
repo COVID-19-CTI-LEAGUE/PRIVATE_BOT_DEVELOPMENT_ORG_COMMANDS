@@ -243,7 +243,7 @@ def listmembers():
         resp['blocks'] = []
         resp['blocks'].append(add_mrkdwn_section('Contacts for {}'.format(text)))
 
-        fields = add_fields_section(contacts)
+        fields = add_fields_section(contacts, False)
         resp['blocks'].append(fields)
         print(resp)
 
