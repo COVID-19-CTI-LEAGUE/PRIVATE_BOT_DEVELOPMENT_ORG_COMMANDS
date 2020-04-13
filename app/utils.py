@@ -3,9 +3,12 @@ import hmac
 import json
 import os
 import platform
+import slack
 import sys
 
 from time import time
+
+slack = slack.WebClient(token=os.environ['SLACK_API_TOKEN'])
 
 def verify_signature(request, timestamp, signature, signing_secret):
     # Verify the request signature of the request sent from Slack

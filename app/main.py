@@ -1,7 +1,6 @@
 import bmemcached
 import hmac
 import os
-import slack
 import sqlalchemy
 import sqreen
 
@@ -12,8 +11,6 @@ from flask import request, make_response
 from flask_sqlalchemy import SQLAlchemy
 from flask_heroku import Heroku
 from flask_slacksigauth import slack_sig_auth
-
-from slackeventsapi import SlackEventAdapter
 
 from sqlalchemy import column, exists, func
 from sqlalchemy.dialects.postgresql import JSONB
@@ -31,10 +28,6 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 heroku = Heroku(app)
 db = SQLAlchemy(app)
-slack_signing_secret = os.environ['SLACK_SIGNING_SECRET']
-
-slack_events_adapter = SlackEventAdapter(slack_signing_secret, "/slack/events", app)
-slack = slack.WebClient(token=os.environ['SLACK_API_TOKEN'])
 
 sqreen.start()
 ##ORM
