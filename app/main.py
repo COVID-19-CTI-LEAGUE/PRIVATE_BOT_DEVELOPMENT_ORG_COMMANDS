@@ -245,7 +245,6 @@ def addcontact():
     user_name=request.form['user_name']
     user_id=request.form['user_id']
 
-
     #error checking
     message = ""
     if len(text) == 0:
@@ -260,6 +259,8 @@ def addcontact():
         for org in orgs:
             org = org.lstrip(' ')
             org = org.rstrip(' ')
+            org = org.replace('<', '')
+            org = org.replace('>', '')
             cc = db.session.query(CTIContact).filter(
                 func.lower(CTIContact.data['organization'].astext) == func.lower(org)
             ).first()
