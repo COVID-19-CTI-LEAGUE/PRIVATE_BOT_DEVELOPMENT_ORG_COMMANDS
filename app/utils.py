@@ -83,7 +83,7 @@ def add_fields_section(fields):
 
     for field in fields:
         section['fields'].append({
-            'type' : 'plain_text',
+            'type' : 'mrkdwn',
             'text' : field,
             'emoji' : False
         })
