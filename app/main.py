@@ -23,8 +23,10 @@ from sqlalchemy.orm.attributes import flag_modified
 from app.utils import get_slack_profile, build_response, verify_signature
 from app.exceptions import OrgLookupException
 
+from config import ProductionConfig
+
 app = Flask(__name__)
-#app.config.from_object(os.environ['APP_SETTINGS'])
+app.config.from_object(ProductionConfig())
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 heroku = Heroku(app)
