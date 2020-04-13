@@ -89,8 +89,7 @@ def add_fields_section(fields, plain_text=True):
     for field in fields:
         section['fields'].append({
             'type' : type,
-            'text' : field,
-            'emoji' : False
+            'text' : field
         })
     return section
 
