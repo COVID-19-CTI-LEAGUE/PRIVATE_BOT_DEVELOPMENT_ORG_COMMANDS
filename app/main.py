@@ -158,7 +158,7 @@ def listmyorgs():
 
     all_ccs = db.session.query(CTIContact).all()
 
-    message = "You are a contact for the following organizations:\n"
+    message = "You are a contact for the following organizations:"
     resp = {}
     resp['blocks'] = []
     resp['blocks'].append(add_mrkdwn_section(message))
