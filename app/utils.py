@@ -125,7 +125,6 @@ def add_fields_section(fields, plain_text=True):
     for field in fields:
         if index > 0 and index % 10 == 0:
             sections.append(section)
-            sections.append({'type' : 'divider'})
             section = {
                 'type' : 'section',
                 'fields' : []

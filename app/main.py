@@ -71,23 +71,30 @@ def listorgs():
     all_ccs = db.session.query(CTIContact).order_by(CTIContact.id).all()
     orgs = []
     message = ""
+    title = ""
 
     if len(text) == 0:
-        message = "Current registered organizations:\n"
+        title = "Current registered organizations:\n"
         for cc in all_ccs:
             orgs.append(cc.data['organization'])
     else:
-        message = "Organizations matching your search:\n"
+        title = "Organizations matching your search:\n"
         for cc in all_ccs:
             if text.lower() in cc.data['organization'].lower():
                 orgs.append(cc.data['organization'])
             last_id=cc.id
 
-
     for org in orgs:
         message += "- {}\n".format(org)
 
-    resp = build_response(message)
+    resp = add_noaction_modal_section(title)
+    fields = add_fields_section(orgs)
+
+    resp['blocks'] = []
+
+    for field in fields:
+        resp['blocks'].append(field)
+    #resp = build_response(message)
     return jsonify(resp)
 
 @app.route('/leaveorg', methods=['POST'])
