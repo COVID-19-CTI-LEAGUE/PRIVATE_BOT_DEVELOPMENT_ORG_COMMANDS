@@ -94,6 +94,7 @@ def listorgs():
 
     for field in fields:
         resp['blocks'].append(field)
+    print('Number of blocks {}'.format(len(resp['blocks'])))
     #resp = build_response(message)
     return jsonify(resp)
 
