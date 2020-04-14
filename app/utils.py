@@ -93,8 +93,9 @@ def add_button_section(button_text, value):
     return section
 
 
-def add_noaction_modal_section(title):
+def add_noaction_modal_section(title, trigger_id):
     resp = {
+        'trigger_id': trigger_id,
         'type': 'modal',
         'title':{
             'type': 'plain_text',

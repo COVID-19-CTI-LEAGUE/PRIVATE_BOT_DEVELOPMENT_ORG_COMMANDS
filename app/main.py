@@ -67,6 +67,7 @@ def not_authorized(e):
 def listorgs():
     text=request.form['text']
     user_name=request.form['user_name']
+    trigger_id=request.form['trigger_id']
 
     all_ccs = db.session.query(CTIContact).order_by(CTIContact.id).all()
     orgs = []
@@ -87,7 +88,7 @@ def listorgs():
     for org in orgs:
         message += "- {}\n".format(org)
 
-    resp = add_noaction_modal_section(title)
+    resp = add_noaction_modal_section(title, trigger_id)
     fields = add_fields_section(orgs)
 
     resp['blocks'] = []
