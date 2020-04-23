@@ -85,6 +85,7 @@ def listorgs():
                 orgs.append(cc.data['organization'])
             last_id=cc.id
 
+    orgs = sorted(orgs)
     for org in orgs:
         message += "- {}\n".format(org)
 
