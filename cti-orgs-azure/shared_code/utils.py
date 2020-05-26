@@ -16,6 +16,34 @@ from slack import WebClient
 
 slack_client = WebClient(token=os.environ['SLACK_API_TOKEN'])
 
+def is_request_authorized(req):
+   # Check for Slack Headers
+    if 'X-Auth-Bypass' not in req.headers and 'X-Slack-Request-Timestamp' and 'X-Slack-Signature' in req.headers:
+            slack_request_timestamp = req.headers['X-Slack-Request-Timestamp']
+            slack_signature = req.headers['X-Slack-Signature']
+    else:
+        slack_signature = None
+        logging.info('Signature: Missing')
+        if 'X-Auth-Bypass' not in req.headers:
+            return False
+    
+    request_body = req.get_body()
+    request_body = request_body.decode('ASCII')
+
+    if slack_signature:
+        sig_verified = verify_slack_request(slack_signature, slack_request_timestamp, request_body)
+    else:
+        sig_verified = False
+    
+    if sig_verified or 'X-Auth-Bypass' in req.headers:
+        logging.info('Signature Check: Passed')
+    else:
+        logging.info(f'Signature Check: Failed\n Request Body: {request_body}')
+        # (Un)comment for local debugging
+        return False 
+    
+    return True
+
 def verify_slack_request(slack_signature=None, slack_request_timestamp=None, request_body=None):
     ''' Form the basestring as stated in the Slack API docs. We need to make a bytestring. '''
     basestring = f'v0:{slack_request_timestamp}:{request_body}'.encode('utf-8')

@@ -143,6 +143,10 @@ def add_contact(user_id, org_name, third_party=None):
     
     org = session.query(CTIContacts).filter_by(organization=org_name).first()
     resp = {}
+    org_name = org_name.replace('<', '')
+    org_name = org_name.replace('>', '')
+    org_name = org_name.lstrip(' ')
+    org_name = org_name.rstrip(' ')
 
     if org is None:
         org = CTIContacts(organization=org_name, contacts= {'slack' : [], 'emails' : []})
@@ -180,6 +184,69 @@ def add_contact(user_id, org_name, third_party=None):
                 resp = build_response(f'<@{third_party}> is already a contact for {org_name}')
     
     return resp
+
+
+def delete_org(user_id, org_name):
+    session = db_connect()
+
+    org = session.query(CTIContacts).filter(organization=org_name).first()
+    resp = {}
+
+    if org is None:
+        resp = build_response(f'Organization {org_name} not found')
+        return resp
+    
+    slack_contacts = org.contacts['slack']
+
+    if len(slack_contacts) > 0:
+        owner_id = slack_contacts[0]
+
+        if user_id == owner_id:
+            session.delete(org)
+            session.commit()
+            resp = build_response(f'Organization {org_name} has been removed')
+        else:
+            resp = build_response(f'Unauthorized. Please ask <@{owner_id}> to request deletion')
+    else:
+        resp = build_response('Please contact <@admins> for assistance')
+    
+    return resp
+
+
+def modify_org(user_id, org_name, new_org_name):
+    session = db_connect()
+
+    new_org_name = new_org_name.replace('<', '')
+    new_org_name = new_org_name.replace('>', '')
+    new_org_name = new_org_name.lstrip(' ')
+    new_org_name = new_org_name.rstrip(' ')
+
+    org = session.query(CTIContacts).filter(organization=org_name).first()
+    resp = {}
+
+    if org is None:
+        resp = build_response(f'Organization {org_name} not found')
+        return resp
+    
+    slack_contacts = org.contacts['slack']
+
+    if len(slack_contacts) > 0:
+        owner_id = slack_contacts[0]
+
+        if user_id == owner_id:
+            org.organization = new_org_name
+            flag_modified(org, 'organization')
+            session.add(org)
+            session.commit()
+            resp = build_response(f'Organization {org_name} has been renamed to {new_org_name}')
+        else:
+            resp = build_response(f'Unauthorized. Please ask <@{owner_id}> to request modification')
+    else:
+        resp = build_response('Please contact <@admins> for assistance')  
+
+    return resp 
+            
+
 
 
 
