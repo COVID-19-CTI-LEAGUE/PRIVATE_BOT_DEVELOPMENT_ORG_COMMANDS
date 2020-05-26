@@ -127,3 +127,10 @@ dmypy.json
 
 # Pyre type checker
 .pyre/
+
+#Azure
+.funcignore
+.vscode
+
+#Random
+.DS_Store

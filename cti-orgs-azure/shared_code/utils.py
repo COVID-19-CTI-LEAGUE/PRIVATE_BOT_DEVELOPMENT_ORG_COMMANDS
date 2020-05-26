@@ -10,6 +10,8 @@ import requests
 import re
 import os
 import traceback
+
+from urllib.parse import parse_qs
 from slack import WebClient
 
 slack_client = WebClient(token=os.environ['SLACK_API_TOKEN'])
@@ -102,3 +104,45 @@ def add_fields_section(fields, plain_text=True):
         index += 1
     sections.append(section)
     return sections
+
+def add_mrkdwn_section(text):
+    section = {
+        'type' : 'section',
+        'text' : {
+            'type' : 'mrkdwn',
+            'text' : text
+        }
+    }
+
+    return section
+
+def is_valid_email(email):
+    regex = '^[a-z0-9]+[\._]?[a-z0-9]+[@]\w+[.]\w{2,3}$'
+    return re.search(regex, email) or 'mailto' in email
+
+def get_slack_command(req):
+    '''Verify the request is a valid Slack Slash Command'''
+    request_body = parse_qs(req.get_body())   
+    response_url = request_body.get(b'response_url')
+    response_url = response_url[0].decode('ASCII')
+    user_id = request_body.get(b'user_id')
+    user_id = user_id[0].decode('ASCII')
+    trigger_id = request_body.get(b'trigger_id')
+    trigger_id = trigger_id[0].decode('ASCII')
+
+    try:
+        org = request_body.get(b'text')
+        org = org[0].decode('ASCII')
+        return (response_url, trigger_id, user_id, org)
+    except TypeError:
+        org = ''
+        return (response_url, trigger_id, user_id, org)
+
+
+def extract_user_id(escaped_str):
+    #<@UV4CEG4QZ|warfieldn>
+    regex = '^<\@(.*)\|.*>$'
+    m = re.match(regex, escaped_str)
+
+    if m:
+        return m.group(1)

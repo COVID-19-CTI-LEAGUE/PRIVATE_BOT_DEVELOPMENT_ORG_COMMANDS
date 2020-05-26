@@ -13,14 +13,13 @@ import traceback
 
 import azure.functions as func
 
-from urllib.parse import parse_qs
+
 
 from ..shared_code import db, utils
 
 
-def main(req: func.HttpRequest, context: func.Context) -> func.HttpResponse:
-    
-    # Check for Slack Headers
+def main(req: func.HttpRequest) -> func.HttpResponse:
+   # Check for Slack Headers
     if 'X-Auth-Bypass' not in req.headers and 'X-Slack-Request-Timestamp' and 'X-Slack-Signature' in req.headers:
             slack_request_timestamp = req.headers['X-Slack-Request-Timestamp']
             slack_signature = req.headers['X-Slack-Signature']
@@ -51,39 +50,19 @@ def main(req: func.HttpRequest, context: func.Context) -> func.HttpResponse:
              status_code=403
         )
     
-    response_url, trigger_id, user_id, org = utils.get_slack_command(req)
+    response_url, trigger_id, user_id, params = utils.get_slack_command(req)
+    args = params.split(' ')
+    org = args[0]
+    third_party = None
 
-    orgs = db.list_orgs(org)
-    sorted_orgs = []
+    if len(args) > 1:
+        third_party=args[1]
 
-    message = ""
-    title = ""
+    logging.info(f'User id {user_id} args {args} third party {third_party}')
 
-    if len(org) > 0:
-        title = "Organizations matching your search:\n"
-    else:
-        title = "Current registered organizations:\n"
-
-    for org in orgs:
-        sorted_orgs.append(org.organization)
-    
-    sorted_orgs = sorted(sorted_orgs)
-
-    for org in sorted_orgs:
-        message += f'- {org}\n'
-    
-    resp = utils.add_noaction_modal_section(title, trigger_id)
-    fields = utils.add_fields_section(sorted_orgs)
-
-    resp['blocks'] = []
-
-    for field in fields:
-        resp['blocks'].append(field)
-
-    #requests.post(response_url, json=resp)
+    resp = db.add_contact(user_id, org, third_party)
 
     return func.HttpResponse(
         json.dumps(resp),
-        mimetype="application/json"
+        mimetype='application/json'
     )
-

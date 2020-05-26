@@ -8,7 +8,7 @@ from sqlalchemy.orm.attributes import flag_modified
 
 from sqlalchemy import func
 
-from .utils import build_response
+from .utils import build_response, add_mrkdwn_section, add_fields_section, get_slack_profile, is_valid_email, extract_user_id
 
 db_host = os.environ['DB_HOST']
 db_user = os.environ['DB_USER']
@@ -30,13 +30,10 @@ class CTIContacts(Base):
 
 
 
-
-
-
 def db_connect():
     engine = sqlalchemy.create_engine(
     f'mysql+mysqlconnector://{db_user}:{db_pass}@{db_host}:3306/cti_orgs',
-    echo=True)
+    echo=False)
 
     Session = sessionmaker(bind=engine)
     session = Session()
@@ -47,21 +44,24 @@ def list_orgs(search_param):
     session = db_connect()
 
     if len(search_param) > 0:
-        orgs = session.query(CTIContacts).filter(CTIContacts.organization.like(f'%{search_param}')).all()
+        orgs = session.query(CTIContacts).filter(CTIContacts.organization.like(f'%{search_param}%')).all()
     else:
         orgs = session.query(CTIContacts).order_by(CTIContacts.id).all()
     return orgs
 
-def leave_org(response_url, user_id, org_name):
+def leave_org(user_id, org_name):
     session = db_connect()
-    
-    org = session.query(CTIContacts).filter(
-        func.lower(CTIContacts.organization.astext) == func.lower(org_name)
-    ).first()
 
+    orgs = session.query(CTIContacts).all()
+
+    org = None
+    for o in orgs:
+        if org_name.lower() == o.organization.lower():
+            org = o
+
+    resp = {}
     if org is None:
         resp = build_response(f'Organization {org_name} not found')
-        requests.post(response_url, json=resp)
     else:
         if user_id == org.contacs['slack']:
             org.contacts['slack'].remove(user_id)
@@ -75,10 +75,119 @@ def leave_org(response_url, user_id, org_name):
                 session.commit()
 
             resp = build_response(f'You have been removed from {org_name}')
-            requests.post(response_url, json=resp)
         else:
             resp = build_response(f'You are not a contact for {org_name}')
-            requests.post(response_url, json=resp)
+    
+    return resp
+
+
+def list_my_orgs(user_id, email):
+    session = db_connect()
+
+    orgs = session.query(CTIContacts).all()
+    resp = {}
+    resp['blocks'] = []
+    if len(email) == 0:
+        #lookup only by slack user ID
+        my_orgs = []
+        resp['blocks'].append(add_mrkdwn_section('You are a contact for the following organization(s):'))
+        for org in orgs:
+            if user_id in org.contacts['slack']:
+                my_orgs.append(org.organization)
+        fields = add_fields_section(my_orgs)
+
+        for field in fields:
+            resp['blocks'].append(field)
+    else:
+        email_orgs = []
+        resp['blocks'].append(add_mrkdwn_section(f'{email} is a contact for the following organization(s):'))
+        for org in orgs:
+            if email in org.contacts['emails']:
+                email_orgs.append(org.organization)
+            fields = add_fields_section(email_orgs)
+        for field in fields:
+            resp['blocks'].append(field)
+    
+    return resp
+
+def list_members(org_search):
+    session = db_connect()
+
+    orgs = session.query(CTIContacts).filter(CTIContacts.organization.like(f'%{org_search}%')).all()
+    resp = {}
+
+    if orgs is None or len(orgs) == 0:
+        resp = build_response(f'Organization {org_search} not found')
+        return resp
+    
+    resp['blocks'] = []
+
+    for org in orgs:
+        resp['blocks'].append(add_mrkdwn_section(f'Contacts for {org.organization}'))
+        contacts = []
+        for slack in org.contacts['slack']:
+            user_profile = get_slack_profile(slack)
+            if user_profile is not None:
+                contacts.append('{} (<@{}>)'.format(user_profile['full_name'], slack))
+        for email in org.contacts['emails']:
+            contacts.append(email)
+        
+        fields = add_fields_section(contacts, False)
+
+        for field in fields:
+            resp['blocks'].append(field)
+    return resp
+
+def add_contact(user_id, org_name, third_party=None):
+    session = db_connect()
+    
+    org = session.query(CTIContacts).filter_by(organization=org_name).first()
+    resp = {}
+
+    if org is None:
+        org = CTIContacts(organization=org_name, contacts= {'slack' : [], 'emails' : []})
+    
+    if third_party is None:
+        #self-registration
+        if user_id not in org.contacts['slack']:
+            org.contacts['slack'].append(user_id)
+            flag_modified(org, 'contacts')
+            session.add(org)
+            session.commit()
+            resp = build_response(f'You have been added as a contact for {org_name}')
+        else:
+            resp = build_response(f'You are already a member of {org_name}')
+    else:
+        if is_valid_email(third_party):
+            #email registration
+            if third_party not in org.contacts['emails']:
+                org.contacts['emails'].append(third_party)
+                flag_modified(org, 'contacts')
+                session.add(org)
+                session.commit()
+                resp = build_response(f'{third_party} registered as a contact for {org_name}')
+            else:
+                resp = build_response(f'{third_party} already registered for {org_name}')
+        else:
+            third_party = extract_user_id(third_party)
+            if third_party not in org.contacts['slack']:
+                org.contacts['slack'].append(third_party)
+                flag_modified(org, 'contacts')
+                session.add(org)
+                session.commit()
+                resp = build_response(f'<@{third_party}> added as a contact for {org_name}')
+            else:
+                resp = build_response(f'<@{third_party}> is already a contact for {org_name}')
+    
+    return resp
+
+
+
+
+
+
+
+
 
 
 
