@@ -131,6 +131,7 @@ dmypy.json
 #Azure
 .funcignore
 .vscode
+sample.dat
 
 #Random
 .DS_Store

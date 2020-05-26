@@ -21,7 +21,7 @@ from ..shared_code import db, utils
 def main(req: func.HttpRequest, context: func.Context) -> func.HttpResponse:
     if not utils.is_request_authorized(req):
         return func.HttpResponse(
-            'Unauthorized',
+            'Forbidden',
             status_code=403
         )
     
