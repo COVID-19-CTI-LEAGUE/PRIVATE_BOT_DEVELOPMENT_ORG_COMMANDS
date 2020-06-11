@@ -63,7 +63,7 @@ def leave_org(user_id, org_name):
     if org is None:
         resp = build_response(f'Organization {org_name} not found')
     else:
-        if user_id == org.contacs['slack']:
+        if user_id == org.contacts['slack']:
             org.contacts['slack'].remove(user_id)
 
             if len(org.contacts['slack']) > 0:
@@ -147,7 +147,13 @@ def add_contact(user_id, org_name, third_party=None):
     org_name = org_name.replace('>', '')
     org_name = org_name.lstrip(' ')
     org_name = org_name.rstrip(' ')
+    org_name = org_name.replace("\"", "")
+    org_name = org_name.replace("'", "")
 
+    if len(org_name) < 1:
+        resp = add_mrkdwn_section('Organization name cannot be blank')
+        return resp
+        
     if org is None:
         org = CTIContacts(organization=org_name, contacts= {'slack' : [], 'emails' : []})
     

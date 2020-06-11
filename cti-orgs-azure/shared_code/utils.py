@@ -151,18 +151,32 @@ def is_valid_email(email):
 def get_slack_command(req):
     '''Verify the request is a valid Slack Slash Command'''
     request_body = parse_qs(req.get_body())   
-    response_url = request_body.get(b'response_url')
-    response_url = response_url[0].decode('ASCII')
-    user_id = request_body.get(b'user_id')
-    user_id = user_id[0].decode('ASCII')
-    trigger_id = request_body.get(b'trigger_id')
-    trigger_id = trigger_id[0].decode('ASCII')
+    response_url = ''
+    try:
+        response_url = request_body.get(b'response_url')
+        response_url = response_url[0].decode('ASCII')
+    except:
+        response_url=''
+
+    user_id = ''
+    try:
+        user_id = request_body.get(b'user_id')
+        user_id = user_id[0].decode('ASCII')
+    except:
+        user_id = ''
+
+    trigger_id=''
+    try:
+        trigger_id = request_body.get(b'trigger_id')
+        trigger_id = trigger_id[0].decode('ASCII')
+    except:
+        trigger_id=''
 
     try:
         org = request_body.get(b'text')
         org = org[0].decode('ASCII')
         return (response_url, trigger_id, user_id, org)
-    except TypeError:
+    except:
         org = ''
         return (response_url, trigger_id, user_id, org)
 
