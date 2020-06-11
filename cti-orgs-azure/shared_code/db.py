@@ -63,7 +63,7 @@ def leave_org(user_id, org_name):
     if org is None:
         resp = build_response(f'Organization {org_name} not found')
     else:
-        if user_id == org.contacts['slack']:
+        if user_id in org.contacts['slack']:
             org.contacts['slack'].remove(user_id)
 
             if len(org.contacts['slack']) > 0:
