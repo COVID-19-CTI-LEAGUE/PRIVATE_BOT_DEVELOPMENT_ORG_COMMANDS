@@ -94,19 +94,26 @@ def list_my_orgs(user_id, email):
         for org in orgs:
             if user_id in org.contacts['slack']:
                 my_orgs.append(org.organization)
-        fields = add_fields_section(my_orgs)
 
-        for field in fields:
-            resp['blocks'].append(field)
+        if len(my_orgs) == 0:
+            resp['blocks'].append(add_mrkdwn_section('You are not a member of any organization'))
+        else:
+            fields = add_fields_section(my_orgs)
+
+            for field in fields:
+                resp['blocks'].append(field)
     else:
         email_orgs = []
         resp['blocks'].append(add_mrkdwn_section(f'{email} is a contact for the following organization(s):'))
         for org in orgs:
             if email in org.contacts['emails']:
                 email_orgs.append(org.organization)
+        if len(email_orgs) == 0:
+            resp['blocks'].append(add_mrkdwn_section('You are not a member of any organization'))
+        else:
             fields = add_fields_section(email_orgs)
-        for field in fields:
-            resp['blocks'].append(field)
+            for field in fields:
+                resp['blocks'].append(field)
     
     return resp
 
