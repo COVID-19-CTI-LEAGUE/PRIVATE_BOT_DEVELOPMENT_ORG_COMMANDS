@@ -259,6 +259,7 @@ def listmembers():
         for email in org.contacts['emails']:
             contacts.append(email)
 
+        print(contacts)
         fields = add_fields_section(contacts, False)
 
         for field in fields:
