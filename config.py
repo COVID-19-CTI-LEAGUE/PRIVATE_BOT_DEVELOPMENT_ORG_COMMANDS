@@ -7,7 +7,7 @@ class Config(object):
     DEBUG = False
     TESTING = False
     CSRF_ENABLED = True
-    SQLALCHEMY_DATABASE_URI = os.environ['DATABASE_URL']
+    SQLALCHEMY_DATABASE_URI = os.environ['JAWSDB_URL']
     SLACK_SIGNING_SECRET = os.environ['SLACK_SIGNING_SECRET']
     SQLALCHEMY_ENGINE_OPTIONS = {
         'pool_size' : 10,
