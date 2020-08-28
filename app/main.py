@@ -259,13 +259,11 @@ def listmembers():
         for email in org.contacts['emails']:
             contacts.append(email)
 
-        print(contacts)
         fields = add_fields_section(contacts, False)
 
         for field in fields:
             resp['blocks'].append(field)
 
-    print(resp)
     return jsonify(resp)
 
 @app.route('/addcontact', methods=['POST'])
