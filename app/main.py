@@ -75,7 +75,7 @@ def listorgs():
         message += "- {}\n".format(org)
 
     resp = add_noaction_modal_section(title, trigger_id)
-    fields = add_fields_section(orgs)
+    fields = add_fields_section(sorted_orgs)
 
     resp['blocks'] = []
 
