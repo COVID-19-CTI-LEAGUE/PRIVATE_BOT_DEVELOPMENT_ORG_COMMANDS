@@ -154,3 +154,7 @@ def get_slack_profile(user_id):
     except:
         pass
     return None
+
+def is_valid_email(email):
+    regex = '^[a-z0-9]+[\._]?[a-z0-9]+[@]\w+[.]\w{2,3}$'
+    return re.search(regex, email) or 'mailto' in email
