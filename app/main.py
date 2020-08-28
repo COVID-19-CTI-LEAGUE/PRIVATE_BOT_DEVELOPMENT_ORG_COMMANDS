@@ -2,7 +2,6 @@ import bmemcached
 import hmac
 import os
 import sqlalchemy
-import sqreen
 
 from flask import Flask
 from flask import abort, jsonify
@@ -29,7 +28,6 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 heroku = Heroku(app)
 db = SQLAlchemy(app)
 
-sqreen.start()
 ##ORM
 class CTIContact(db.Model):
     __tablename__ = 'cti_contacts'
