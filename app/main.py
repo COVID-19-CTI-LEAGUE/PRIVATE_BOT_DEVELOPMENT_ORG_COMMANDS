@@ -291,7 +291,7 @@ def addcontact():
         return resp
 
     if org is None:
-        org = CTIContacts(organization=org_name, contacts= {'slack' : [], 'emails' : []})
+        org = CTIContact(organization=org_name, contacts= {'slack' : [], 'emails' : []})
 
     #self-registration
     if user_id not in org.contacts['slack']:
