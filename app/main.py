@@ -219,8 +219,8 @@ def modorg():
         if user_id == owner_id:
             org.organization = new_org_name
             flag_modified(org, 'organization')
-            session.add(org)
-            session.commit()
+            db.session.add(org)
+            db.session.commit()
             resp = build_response(f'Organization {org_name} has been renamed to {new_org_name}')
         else:
             resp = build_response(f'Unauthorized. Please ask <@{owner_id}> to request modification')
@@ -297,8 +297,8 @@ def addcontact():
     if user_id not in org.contacts['slack']:
         org.contacts['slack'].append(user_id)
         flag_modified(org, 'contacts')
-        session.add(org)
-        session.commit()
+        db.session.add(org)
+        db.session.commit()
         resp = build_response(f'You have been added as a contact for {org_name}')
     else:
         resp = build_response(f'You are already a member of {org_name}')
