@@ -87,10 +87,10 @@ def listorgs():
 @app.route('/leaveorg', methods=['POST'])
 @slack_sig_auth
 def leaveorg():
-    text=request.form['text']
+    org_name=request.form['text']
     user_id=request.form['user_id']
 
-    if len(text) == 0:
+    if len(org_name) == 0:
         resp = build_response('Missing organization')
         return jsonify(resp)
 
