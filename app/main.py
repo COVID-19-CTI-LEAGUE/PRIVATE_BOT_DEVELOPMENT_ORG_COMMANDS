@@ -110,11 +110,11 @@ def leaveorg():
 
             if len(org.contacts['slack']) > 0:
                 flag_modified(org, 'contacts')
-                session.add(org)
-                session.commit()
+                db.session.add(org)
+                db.session.commit()
             else:
-                session.delete(org)
-                session.commit()
+                db.session.delete(org)
+                db.session.commit()
 
             resp = build_response(f'You have been removed from {org_name}')
         else:
