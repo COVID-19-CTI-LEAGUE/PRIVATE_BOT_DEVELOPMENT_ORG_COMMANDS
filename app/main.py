@@ -244,7 +244,7 @@ def listmembers():
     resp = {}
 
     if orgs is None or len(orgs) == 0:
-        resp = build_response(f'Organization {org_search} not found')
+        resp = build_response(f'Organization {text} not found')
         return jsonify(resp)
 
     resp['blocks'] = []
